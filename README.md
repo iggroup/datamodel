@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/QGEP/datamodel.svg?branch=master)](https://travis-ci.org/QGEP/datamodel)
 
+Dans ce dossier, il y a le modèle QGPE modifié pour les besoins d'IG Group
+
 The QGEP Datamodel
 ==================
 
