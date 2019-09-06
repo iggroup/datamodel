@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/QGEP/datamodel.svg?branch=master)](https://travis-ci.org/QGEP/datamodel)
 
 Dans ce dossier, il y a le modèle QGPE modifié pour les besoins d'IG Group
+* 90_custom_ig_group.sql crée le schéma ig group
+* scripts/ig_group_backup_upgrade.sh lance l'upgrade sur plusieurs BD
 
 The QGEP Datamodel
 ==================
