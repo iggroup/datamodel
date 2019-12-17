@@ -49,7 +49,8 @@ CREATE TABLE qgep_ig.leve_conduite (
 	hauteur numeric,
 	forme varchar(50),
 	fonction_hierarchique varchar(50),
-	fonction_hydraulique varchar(50)
+	fonction_hydraulique varchar(50),
+	remarque text
 );
 select AddGeometryColumn('qgep_ig','leve_conduite', 'geom', 2056, 'Point', 3);
 
