@@ -23,6 +23,8 @@ git:
 
 # Use sed to replace the SSH URL with the public URL, then initialize submodules
 before_install:
+  # Fix /var/ramfs filling up (see https://github.com/QGEP/datamodel/pull/137 and https://github.com/travis-ci/travis-ci/issues/9036)
+  - sudo mount -o remount,size=50% /var/ramfs
   - |
     echo "Setting up readonly access via https"
     sed -i 's|git@github.com:|https://github.com/|' .gitmodules
@@ -46,7 +48,8 @@ before_script:
 
 script:
   - ${TRAVIS_BUILD_DIR}/scripts/db_setup.sh -r > /dev/null
-  - nosetests -e test_import.py -e test_geometry.py
+  # Run tests that depend on data model. Tests that require demo data are ignored and run below.
+  - nosetests -e test_import.py -e test_geometry.py -e test_swmm.py
   
   # Get current version
   - export VERSION=$(sed 'r' "$TRAVIS_BUILD_DIR/system/CURRENT_VERSION.txt")
