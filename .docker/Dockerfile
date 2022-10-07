@@ -1,9 +1,9 @@
-ARG POSTGIS_VERSION=11-2.5
+ARG POSTGIS_VERSION=11-3.2
 FROM postgis/postgis:${POSTGIS_VERSION}
 
 # System deps
 RUN apt-get update && apt-get install -y python3 python3-pip libpq-dev wget && apt-get clean
-# /INSTALL SYSTEM DEPS (PYTHON-3.5 debian stretch)
+# /INSTALL SYSTEM DEPS (PYTHON-3.9 debian bullseye)
 
 # Python deps
 ADD requirements.txt .
@@ -22,7 +22,7 @@ RUN chown postgres /downloads
 RUN printf '[qgep_release]\ndbname=qgep_release\nuser=postgres\n' >> /etc/postgresql-common/pg_service.conf
 RUN printf '[qgep_release_struct]\ndbname=qgep_release_struct\nuser=postgres\n' >> /etc/postgresql-common/pg_service.conf
 RUN printf '[qgep_build]\ndbname=qgep_build\nuser=postgres\n' >> /etc/postgresql-common/pg_service.conf
-RUN printf '[qgep_build_pum]\ndbname=qgep_build_pum\nuser=postgres\n' >> /etc/postgresql-common/pg_service.conf
+RUN printf '[qgep_prod]\ndbname=qgep_prod\nuser=postgres\n' >> /etc/postgresql-common/pg_service.conf
 RUN printf '[qgep_pum_test]\ndbname=qgep_pum_test\nuser=postgres\n' >> /etc/postgresql-common/pg_service.conf
 
 # required for pum test-and-upgrade to pickup the service

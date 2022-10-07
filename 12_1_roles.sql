@@ -1,56 +1,35 @@
-/* create roles */
-DO $$
-DECLARE
-    role text;
-BEGIN
-    FOREACH role IN ARRAY ARRAY['qgep_viewer', 'qgep_user', 'qgep_manager', 'qgep_sysadmin'] LOOP
-      IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role) THEN
-          EXECUTE format('CREATE ROLE %1$I NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION', role);
-      END IF;
-    END LOOP;
-END
-$$;
+------------------------------------------
+/* GRANT on schemas - once per database */
+------------------------------------------
 
 /* Viewer */
 GRANT USAGE ON SCHEMA qgep_od  TO qgep_viewer;
 GRANT USAGE ON SCHEMA qgep_sys TO qgep_viewer;
 GRANT USAGE ON SCHEMA qgep_vl  TO qgep_viewer;
+GRANT USAGE ON SCHEMA qgep_network  TO qgep_viewer;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA qgep_od  TO qgep_viewer;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA qgep_sys TO qgep_viewer;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA qgep_vl  TO qgep_viewer;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA qgep_network  TO qgep_viewer;
 GRANT SELECT, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA qgep_od  TO qgep_viewer;
 GRANT SELECT, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA qgep_sys TO qgep_viewer;
 GRANT SELECT, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA qgep_vl  TO qgep_viewer;
+GRANT SELECT, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA qgep_network  TO qgep_viewer;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_od  GRANT SELECT, REFERENCES, TRIGGER ON TABLES TO qgep_viewer;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_sys GRANT SELECT, REFERENCES, TRIGGER ON TABLES TO qgep_viewer;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_vl  GRANT SELECT, REFERENCES, TRIGGER ON TABLES TO qgep_viewer;
-
-/*
--- Revok
-REVOKE ALL ON SCHEMA qgep_dr  FROM qgep_viewer;
-REVOKE ALL ON SCHEMA qgep_od  FROM qgep_viewer;
-REVOKE ALL ON SCHEMA qgep_sys FROM qgep_viewer;
-REVOKE ALL ON SCHEMA qgep_vl  FROM qgep_viewer;
-REVOKE ALL ON ALL TABLES IN SCHEMA qgep_dr  FROM qgep_viewer;
-REVOKE ALL ON ALL TABLES IN SCHEMA qgep_od  FROM qgep_viewer;
-REVOKE ALL ON ALL TABLES IN SCHEMA qgep_sys FROM qgep_viewer;
-REVOKE ALL ON ALL TABLES IN SCHEMA qgep_vl  FROM qgep_viewer;
-ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_dr  REVOKE ALL ON TABLES  FROM qgep_viewer;
-ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_od  REVOKE ALL ON TABLES  FROM qgep_viewer;
-ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_sys REVOKE ALL ON TABLES  FROM qgep_viewer;
-ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_vl  REVOKE ALL ON TABLES  FROM qgep_viewer;
-*/
+ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_network  GRANT SELECT, REFERENCES, TRIGGER ON TABLES TO qgep_viewer;
 
 /* User */
-GRANT qgep_viewer TO qgep_user;
 GRANT ALL ON SCHEMA qgep_od TO qgep_user;
 GRANT ALL ON ALL TABLES IN SCHEMA qgep_od TO qgep_user;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA qgep_od TO qgep_user;
+GRANT ALL ON ALL TABLES IN SCHEMA qgep_network TO qgep_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_od GRANT ALL ON TABLES TO qgep_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_od GRANT ALL ON SEQUENCES TO qgep_user;
+DO $$ BEGIN EXECUTE 'GRANT CREATE ON DATABASE ' || (SELECT current_database()) || ' TO "qgep_user"'; END $$;  -- required for ili2pg imports/exports
 
 /* Manager */
-GRANT qgep_user TO qgep_manager;
 GRANT ALL ON SCHEMA qgep_vl TO qgep_manager;
 GRANT ALL ON ALL TABLES IN SCHEMA qgep_vl TO qgep_manager;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA qgep_vl TO qgep_manager;
@@ -58,9 +37,22 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_vl GRANT ALL ON TABLES TO qgep_manager;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_vl GRANT ALL ON SEQUENCES TO qgep_manager;
 
 /* SysAdmin */
-GRANT qgep_manager TO qgep_sysadmin;
 GRANT ALL ON SCHEMA qgep_sys TO qgep_sysadmin;
 GRANT ALL ON ALL TABLES IN SCHEMA qgep_sys TO qgep_sysadmin;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA qgep_sys TO qgep_sysadmin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_sys GRANT ALL ON TABLES TO qgep_sysadmin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_sys GRANT ALL ON SEQUENCES TO qgep_sysadmin;
+
+/*
+-- Revoke
+REVOKE ALL ON SCHEMA qgep_od  FROM qgep_viewer;
+REVOKE ALL ON SCHEMA qgep_sys FROM qgep_viewer;
+REVOKE ALL ON SCHEMA qgep_vl  FROM qgep_viewer;
+REVOKE ALL ON ALL TABLES IN SCHEMA qgep_od  FROM qgep_viewer;
+REVOKE ALL ON ALL TABLES IN SCHEMA qgep_sys FROM qgep_viewer;
+REVOKE ALL ON ALL TABLES IN SCHEMA qgep_vl  FROM qgep_viewer;
+ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_od  REVOKE ALL ON TABLES  FROM qgep_viewer;
+ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_sys REVOKE ALL ON TABLES  FROM qgep_viewer;
+ALTER DEFAULT PRIVILEGES IN SCHEMA qgep_vl  REVOKE ALL ON TABLES  FROM qgep_viewer;
+*/
+
